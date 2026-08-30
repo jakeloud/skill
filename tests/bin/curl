@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+output_file=
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --output)
+      output_file=$2
+      shift 2
+      ;;
+    --write-out|--request|--header|--data-binary)
+      shift 2
+      ;;
+    --silent|--show-error)
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+payload=$(cat)
+printf '%s\n' "$payload" >>"$MOCK_CURL_REQUESTS"
+op=$(jq -r '.op' <<<"$payload")
+
+if [[ ${MOCK_AUTH_FAIL:-false} == true ]]; then
+  printf '%s\n' '{"message":"login"}' >"$output_file"
+elif [[ "$op" == getConfOp ]]; then
+  cp "$MOCK_FIXTURES/config.json" "$output_file"
+elif [[ "$op" == getAppOp ]]; then
+  cp "$MOCK_FIXTURES/project.json" "$output_file"
+elif [[ "$op" == createAppOp ]]; then
+  : >"$output_file"
+else
+  printf '%s\n' '{"message":"noop"}' >"$output_file"
+fi
+
+printf '200'

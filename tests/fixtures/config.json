@@ -1,0 +1,19 @@
+{
+  "apps": [
+    {
+      "name": "jakeloud",
+      "domain": "jakeloud.example.com",
+      "state": "running"
+    },
+    {
+      "name": "store",
+      "domain": "store.example.com:5",
+      "repo": "git@github.com:example/store.git",
+      "state": "running",
+      "additional": {
+        "cmd": "docker build -t store . && exec docker run -p \"$PORT\":80 --rm store"
+      }
+    }
+  ],
+  "users": []
+}
